@@ -1,0 +1,140 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  # ─────────────────────────────────────────────
+  # 🔐 Security Scan (Rails)
+  # ─────────────────────────────────────────────
+  scan_ruby:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: .ruby-version
+          bundler-cache: true
+
+      - name: Run Brakeman
+        run: bin/brakeman --no-pager
+
+  # ─────────────────────────────────────────────
+  # 🔍 Lint (Rubocop)
+  # ─────────────────────────────────────────────
+  lint:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: .ruby-version
+          bundler-cache: true
+
+      - name: Run Rubocop
+        run: bin/rubocop -f github
+
+  # ─────────────────────────────────────────────
+  # 🧪 Test (RSpec + Coverage + DB + Redis)
+  # ─────────────────────────────────────────────
+  <% db = Rails.application.credentials.db %>
+  
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: true
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: Rails.application.credentials.dig(:db, :user_name)
+          POSTGRES_PASSWORD: Rails.application.credentials.dig(:db, :password)
+          POSTGRES_DB: Rails.application.credentials.dig(:db, :dev_db_name)
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7-alpine
+        ports: ["6379:6379"]
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # ✅ Ruby setup + caching
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: .ruby-version
+          bundler-cache: true
+
+      # ✅ Node setup (if React / JS present)
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install JS dependencies
+        run: |
+          if [ -f package.json ]; then npm install; fi
+
+      # ✅ Run RSpec with Coverage
+      - name: Run Tests
+        env:
+          RAILS_ENV: test
+          DATABASE_URL:  <%= "postgres://#{db[:user_name]}:#{db[:password]}@db:5432/#{db[:test_db_name]}" %>
+          REDIS_URL: redis://localhost:6379/0
+          JWT_SECRET: Rails.application.credentials.dig(:jwt, :jwt_secret)
+          RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
+          COVERAGE: true
+        run: |
+          bin/rails db:prepare
+          bundle exec rspec
+
+      # ✅ Upload Coverage Report
+      - name: Upload Coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+
+  # ─────────────────────────────────────────────
+  # 🚀 Deploy (Only if ALL pass)
+  # ─────────────────────────────────────────────
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [scan_ruby, lint, test]
+
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    environment: production
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Fly CLI
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Deploy to Fly.io
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        run: flyctl deploy --remote-only
