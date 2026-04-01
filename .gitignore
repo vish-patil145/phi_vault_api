@@ -39,4 +39,4 @@ config/master.key
 .DS_Store
 
 # Docker
-docker-compose.override.yml
+docker-compose.override.ymlcoverage/
