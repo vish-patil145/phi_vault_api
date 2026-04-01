@@ -1,43 +1,73 @@
-# frozen_string_literal: true
-
+# spec/swagger_helper.rb
 require 'rails_helper'
 
 RSpec.configure do |config|
-  # Specify a root folder where Swagger JSON files are generated
-  # NOTE: If you're using the rswag-api to serve API descriptions, you'll need
-  # to ensure that it's configured to serve Swagger from the same folder
-  config.openapi_root = Rails.root.join('swagger').to_s
+  config.swagger_root = Rails.root.join('swagger').to_s
 
-  # Define one or more Swagger documents and provide global metadata for each one
-  # When you run the 'rswag:specs:swaggerize' rake task, the complete Swagger will
-  # be generated at the provided relative path under openapi_root
-  # By default, the operations defined in spec files are added to the first
-  # document below. You can override this behavior by adding a openapi_spec tag to the
-  # the root example_group in your specs, e.g. describe '...', openapi_spec: 'v2/swagger.json'
-  config.openapi_specs = {
+  config.swagger_docs = {
     'v1/swagger.yaml' => {
       openapi: '3.0.1',
       info: {
-        title: 'API V1',
-        version: 'v1'
+        title: 'PHI Vault API',
+        version: 'v1',
+        description: 'Patient Health Information Vault'
       },
-      paths: {},
       servers: [
-        {
-          url: 'https://{defaultHost}',
-          variables: {
-            defaultHost: {
-              default: 'www.example.com'
+        { url: 'http://localhost:3000', description: 'Development' }
+      ],
+      components: {
+        securitySchemes: {
+          bearerAuth: {
+            type: :http,
+            scheme: :bearer,
+            bearerFormat: 'JWT'
+          }
+        },
+        schemas: {
+          Patient: {
+            type: :object,
+            properties: {
+              id:     { type: :integer },
+              name:   { type: :string },
+              age:    { type: :integer },
+              gender: { type: :string, enum: %w[male female other] }
+            },
+            required: %w[name age gender]
+          },
+          PatientInput: {
+            type: :object,
+            properties: {
+              name:   { type: :string, example: 'Jane Doe' },
+              age:    { type: :integer, example: 30 },
+              gender: { type: :string, enum: %w[male female other], example: 'female' }
+            },
+            required: %w[name age gender]
+          },
+          LoginInput: {
+            type: :object,
+            properties: {
+              email:    { type: :string, format: 'email',    example: 'admin@phivault.com' },
+              password: { type: :string, format: 'password', example: 'secret123' }
+            },
+            required: %w[email password]
+          },
+          AuthToken: {
+            type: :object,
+            properties: {
+              token: { type: :string, example: 'eyJhbGciOiJIUzI1NiJ9...' }
+            },
+            required: %w[token]
+          },
+          Error: {
+            type: :object,
+            properties: {
+              error: { type: :string }
             }
           }
         }
-      ]
+      }
     }
   }
 
-  # Specify the format of the output Swagger file when running 'rswag:specs:swaggerize'.
-  # The openapi_specs configuration option has the filename including format in
-  # the key, this may want to be changed to avoid putting yaml in json files.
-  # Defaults to json. Accepts ':json' and ':yaml'.
-  config.openapi_format = :yaml
+  config.swagger_format = :yaml
 end

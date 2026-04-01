@@ -12,8 +12,8 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
       resources :auth, only: [ :create ]
-      resources :patients
-      resources :phi_records, only: [ :create, :show ]
+      resources :patients, only: [ :create, :index ]
+      resources :phi_records, only: [ :create, :show, :index ]
       resources :consents
     end
   end

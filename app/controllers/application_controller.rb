@@ -1,15 +1,22 @@
 class ApplicationController < ActionController::API
+  include Pundit
+  rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
   before_action :authenticate_request
 
   attr_reader :current_user
 
-  private
+  # ── Global error handlers ──────────────────────────────────────────────────
+  rescue_from ActiveRecord::RecordNotFound,       with: :not_found
+  rescue_from ActiveRecord::RecordInvalid,        with: :unprocessable_entity
+  rescue_from ActionController::ParameterMissing, with: :bad_request
 
+  private
+  def user_not_authorized
+    render json: { error: "Forbidden" }, status: :forbidden
+  end
   # 🔐 Authenticate user from JWT
   def authenticate_request
-    header = request.headers["Authorization"]
-    token = header.split(" ").last if header
-
+    token = extract_token_from_header
     decoded = JwtService.decode(token)
 
     if decoded
@@ -20,15 +27,30 @@ class ApplicationController < ActionController::API
     end
   end
 
-  # 🔒 Authorization (RBAC)
-  def authorize!(roles)
-    unless roles.include?(current_user.role)
-      render json: { error: "Forbidden" }, status: :forbidden and return
-    end
+  # ── Token extractor ────────────────────────────────────────────────────────
+  def extract_token_from_header
+    header = request.headers["Authorization"]
+    header&.split(" ")&.last
   end
 
-  # 🚫 Common unauthorized response
+  # ── Error renderers ────────────────────────────────────────────────────────
   def render_unauthorized
-    render json: { error: "Unauthorized" }, status: :unauthorized and return
+    render json: { error: "Unauthorized" }, status: :unauthorized
+  end
+
+  def render_forbidden
+    render json: { error: "Forbidden" }, status: :forbidden
+  end
+
+  def not_found(e)
+    render json: { error: e.message }, status: :not_found
+  end
+
+  def unprocessable_entity(e)
+    render json: { error: e.message }, status: :unprocessable_entity
+  end
+
+  def bad_request(e)
+    render json: { error: e.message }, status: :bad_request
   end
 end

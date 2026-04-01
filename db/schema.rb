@@ -42,24 +42,29 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_30_133328) do
 
   create_table "phi_records", force: :cascade do |t|
     t.datetime "created_at", null: false
-    t.text "encrypted_data"
+    t.bigint "created_by_id"
+    t.text "encrypted_data", null: false
     t.bigint "patient_id", null: false
-    t.string "request_id"
-    t.string "status"
+    t.string "record_type", default: "general", null: false
+    t.string "request_id", null: false
+    t.string "status", default: "pending", null: false
     t.datetime "updated_at", null: false
+    t.index ["created_by_id"], name: "index_phi_records_on_created_by_id"
     t.index ["patient_id"], name: "index_phi_records_on_patient_id"
     t.index ["request_id"], name: "index_phi_records_on_request_id", unique: true
+    t.index ["status"], name: "index_phi_records_on_status"
   end
 
   create_table "users", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "email"
     t.string "password_digest"
-    t.string "role"
+    t.integer "role", default: 0, null: false
     t.datetime "updated_at", null: false
     t.index ["email"], name: "index_users_on_email", unique: true
   end
 
   add_foreign_key "consents", "patients"
   add_foreign_key "phi_records", "patients"
+  add_foreign_key "phi_records", "users", column: "created_by_id"
 end
