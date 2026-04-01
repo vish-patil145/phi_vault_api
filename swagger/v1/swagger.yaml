@@ -18,19 +18,19 @@ components:
       bearerFormat: JWT
   schemas:
     PhiData:
-    type: object
-    properties:
-      diagnosis:    { type: string, example: "Type 2 Diabetes" }
-      symptoms:     { type: array, items: { type: string } }
-      doctor_notes: { type: string, example: "Monitor BP" }
-      medications:
-        type: array
-        items:
-          type: object
-          properties:
-            name:    { type: string }
-            dosage:  { type: string }
-      lab_results:  { type: object }
+      type: object
+      properties:
+        diagnosis:    { type: string, example: "Type 2 Diabetes" }
+        symptoms:     { type: array, items: { type: string } }
+        doctor_notes: { type: string, example: "Monitor BP" }
+        medications:
+          type: array
+          items:
+            type: object
+            properties:
+              name:    { type: string }
+              dosage:  { type: string }
+        lab_results:  { type: object }
 
     PhiRecordInput:
       type: object
@@ -42,15 +42,15 @@ components:
           "$ref": "#/components/schemas/PhiData"
       required: [patient_id, data]
 
-      PhiRecord:
-        type: object
-        properties:
-          id:          { type: integer }
-          patient_id:  { type: integer }
-          status:      { type: string, enum: [pending, processing, completed, failed] }
-          record_type: { type: string }
-          request_id:  { type: string }
-          created_at:  { type: string, format: datetime }
+    PhiRecord:
+      type: object
+      properties:
+        id:          { type: integer }
+        patient_id:  { type: integer }
+        status:      { type: string, enum: [pending, processing, completed, failed] }
+        record_type: { type: string }
+        request_id:  { type: string }
+        created_at:  { type: string, format: datetime }
 
     Patient:
       type: object
