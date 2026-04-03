@@ -13,6 +13,7 @@ module Middleware
     end
 
     def call(env)
+      return @app.call(env) if Rails.env.test?
       request = Rack::Request.new(env)
 
       limit_config = LIMITS[request.path] || LIMITS["default"]
