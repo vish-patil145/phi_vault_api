@@ -154,7 +154,13 @@ components:
       required:
         - patient_id
         - granted_to
-        - granted  
+        - granted
+    RateLimitError:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Rate limit exceeded. Try again later."
 
 paths:
   "/api/v1/auth":
@@ -216,6 +222,12 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/Error"
+        '429':                                               # ← add this
+          description: rate limit exceeded
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/RateLimitError"        
 
     get:
       summary: List patients
@@ -273,6 +285,12 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/Error"
+        '429':                                               # ← add this
+          description: rate limit exceeded
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/RateLimitError"        
   
   "/api/v1/phi_records":
       post:
@@ -304,6 +322,12 @@ paths:
           '401': { description: unauthorized,  content: { application/json: { schema: { "$ref": "#/components/schemas/Error" } } } }
           '403': { description: forbidden,     content: { application/json: { schema: { "$ref": "#/components/schemas/Error" } } } }
           '422': { description: unprocessable, content: { application/json: { schema: { "$ref": "#/components/schemas/Error" } } } }
+          '429':                                               # ← add this
+            description: rate limit exceeded
+            content:
+              application/json:
+                schema:
+                  "$ref": "#/components/schemas/RateLimitError"
 
       get:
         summary: List PHI records
@@ -328,6 +352,12 @@ paths:
                       properties:
                         current_page: { type: integer }
                         total_pages:  { type: integer }
+          '429':                                               # ← add this
+          description: rate limit exceeded
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/RateLimitError"
 
   "/api/v1/phi_records/{id}":
     get:
@@ -351,6 +381,12 @@ paths:
                   created_at:  { type: string }
         '403': { description: forbidden }
         '404': { description: not found }
+        '429':                                               # ← add this
+          description: rate limit exceeded
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/RateLimitError"
   
   "/api/v1/consents":
     post:
@@ -389,6 +425,12 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/Error"
+        '429':                                               # ← add this
+          description: rate limit exceeded
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/RateLimitError"        
 
     get:
       summary: List consents
@@ -441,6 +483,12 @@ paths:
                         type: integer
                       total_pages:
                         type: integer
+        '429':                                               # ← add this
+          description: rate limit exceeded
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/RateLimitError"
 
   "/api/v1/consents/{id}":
     get:
@@ -468,6 +516,12 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/Error"
+        '429':                                               # ← add this
+          description: rate limit exceeded
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/RateLimitError"
 
     patch:
       summary: Update consent (grant or revoke)
@@ -503,6 +557,12 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/Error"
+        '429':                                               # ← add this
+          description: rate limit exceeded
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/RateLimitError"
 
     delete:
       summary: Delete consent
@@ -533,3 +593,9 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/Error"
+        '429':                                               # ← add this
+          description: rate limit exceeded
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/RateLimitError"
