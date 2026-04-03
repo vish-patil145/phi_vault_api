@@ -9,6 +9,17 @@ class PhiRecordPolicy < ApplicationPolicy
   end
 
   def show?
-    user.admin? || user.doctor?
+    return true if user.admin? || user.doctor?
+
+    # Nurse/doctor can view if consent granted to them
+    Consent.exists?(
+      patient_id: record.patient_id,
+      granted_to: user.email,
+      granted:    true
+    )
+  end
+
+  def destroy?
+    user.admin?
   end
 end
