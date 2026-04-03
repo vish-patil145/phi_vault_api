@@ -38,10 +38,10 @@ module Middleware
       status, headers, body = @app.call(env)
 
       headers["X-RateLimit-Limit"]     = max_requests.to_s
-      headers["X-RateLimit-Remaining"] = [max_requests - current_count - 1, 0].max.to_s
+      headers["X-RateLimit-Remaining"] = [ max_requests - current_count - 1, 0 ].max.to_s
       headers["X-RateLimit-Window"]    = "#{window}s"
 
-      [status, headers, body]
+      [ status, headers, body ]
     rescue Redis::BaseError => e
       # ── If Redis is down, fail open (don't block requests) ─────────────────
       Rails.logger.error("RateLimiter Redis error: #{e.message}")
@@ -76,7 +76,7 @@ module Middleware
           "X-RateLimit-Remaining" => "0",
           "Retry-After"     => window.to_s
         },
-        [body]
+        [ body ]
       ]
     end
   end
