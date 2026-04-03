@@ -47,8 +47,6 @@ jobs:
   # ─────────────────────────────────────────────
   # 🧪 Test (RSpec + Coverage + DB + Redis)
   # ─────────────────────────────────────────────
-  <% db = Rails.application.credentials.db %>
-  
   test:
     runs-on: ubuntu-latest
 
@@ -59,9 +57,9 @@ jobs:
       postgres:
         image: postgres:16-alpine
         env:
-          POSTGRES_USER: Rails.application.credentials.dig(:db, :user_name)
-          POSTGRES_PASSWORD: Rails.application.credentials.dig(:db, :password)
-          POSTGRES_DB: Rails.application.credentials.dig(:db, :dev_db_name)
+          POSTGRES_USER:     ${{ secrets.DB_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          POSTGRES_DB:       ${{ secrets.DB_NAME }}
         ports: ["5432:5432"]
         options: >-
           --health-cmd pg_isready
@@ -87,25 +85,17 @@ jobs:
           ruby-version: .ruby-version
           bundler-cache: true
 
-      # ✅ Node setup (if React / JS present)
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'npm'
-
-      - name: Install JS dependencies
-        run: |
-          if [ -f package.json ]; then npm install; fi
-
       # ✅ Run RSpec with Coverage
       - name: Run Tests
         env:
-          RAILS_ENV: test
-          DATABASE_URL:  <%= "postgres://#{db[:user_name]}:#{db[:password]}@db:5432/#{db[:test_db_name]}" %>
-          REDIS_URL: redis://localhost:6379/0
-          JWT_SECRET: Rails.application.credentials.dig(:jwt, :jwt_secret)
+          RAILS_ENV:        test
+          DB_HOST:          localhost
+          DB_USER:          ${{ secrets.DB_USER }}
+          DB_PASSWORD:      ${{ secrets.DB_PASSWORD }}
+          DB_NAME:          ${{ secrets.DB_NAME }}
+          REDIS_URL:        redis://localhost:6379/0
           RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
-          COVERAGE: true
+          COVERAGE:         true
         run: |
           bin/rails db:prepare
           bundle exec rspec
