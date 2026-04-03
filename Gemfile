@@ -65,6 +65,6 @@ end
 
 group :test do
   gem "simplecov", require: false
-  gem "rspec-rails"  
-  gem "shoulda-matchers"  
+  gem "rspec-rails"
+  gem "shoulda-matchers"
 end

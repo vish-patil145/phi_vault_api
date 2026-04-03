@@ -11,7 +11,7 @@ RSpec.configure do |config|
         title: 'PHI Vault API',
         version: 'v1'
       },
-      servers: [{ url: 'http://localhost:3000' }],
+      servers: [ { url: 'http://localhost:3000' } ],
       components: {
         securitySchemes: {
           bearerAuth: {
