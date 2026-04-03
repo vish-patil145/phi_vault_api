@@ -1,27 +1,29 @@
+# spec/policies/patient_policy_spec.rb
 require 'rails_helper'
 
 RSpec.describe PatientPolicy, type: :policy do
-  let(:user) { User.new }
+  let(:admin)  { create(:user, role: :admin) }
+  let(:doctor) { create(:user, role: :doctor) }
+  let(:nurse)  { create(:user, role: :nurse) }
+  let(:patient) { create(:patient) }
 
   subject { described_class }
 
-  permissions ".scope" do
-    pending "add some examples to (or delete) #{__FILE__}"
-  end
-
-  permissions :show? do
-    pending "add some examples to (or delete) #{__FILE__}"
+  permissions :index? do
+    it { is_expected.to permit(admin,  patient) }
+    it { is_expected.to permit(doctor, patient) }
+    it { is_expected.not_to permit(nurse, patient) }
   end
 
   permissions :create? do
-    pending "add some examples to (or delete) #{__FILE__}"
+    it { is_expected.to permit(admin,  patient) }
+    it { is_expected.to permit(doctor, patient) }
+    it { is_expected.not_to permit(nurse, patient) }
   end
 
-  permissions :update? do
-    pending "add some examples to (or delete) #{__FILE__}"
-  end
-
-  permissions :destroy? do
-    pending "add some examples to (or delete) #{__FILE__}"
+  permissions :show? do
+    it { is_expected.to permit(admin,  patient) }
+    it { is_expected.to permit(doctor, patient) }
+    it { is_expected.not_to permit(nurse, patient) }
   end
 end

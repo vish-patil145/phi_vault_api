@@ -33,7 +33,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_30_133328) do
   end
 
   create_table "patients", force: :cascade do |t|
-    t.string "age"
+    t.integer "age", limit: 2
     t.datetime "created_at", null: false
     t.string "gender"
     t.string "name"

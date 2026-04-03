@@ -1,8 +1,12 @@
+# app/models/user.rb
 class User < ApplicationRecord
   has_secure_password
 
   enum :role, { admin: 0, doctor: 1, nurse: 2, lab_technician: 3 }
 
-  validates :email, presence: true, uniqueness: true
-  validates :role, inclusion: { in: roles.keys }
+  has_many :phi_records, foreign_key: :created_by_id, dependent: :nullify
+
+  validates :email, presence: true,
+                    uniqueness: { case_sensitive: false }
+  validates :role,  inclusion: { in: roles.keys }
 end

@@ -36,7 +36,6 @@ gem "image_processing", "~> 1.2"
 # gem "rack-cors"
 gem "redis"
 gem "sidekiq"
-gem "rspec-rails"
 gem "bcrypt"
 gem "jwt"
 gem "rack-cors"
@@ -60,8 +59,12 @@ group :development, :test do
 
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false
+  gem "factory_bot_rails"
+  gem "faker"
 end
 
 group :test do
   gem "simplecov", require: false
+  gem "rspec-rails"  
+  gem "shoulda-matchers"  
 end
