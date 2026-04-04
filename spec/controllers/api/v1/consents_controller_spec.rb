@@ -524,15 +524,15 @@ RSpec.describe Api::V1::ConsentsController, type: :request do
     end
 
     context 'when authenticated as doctor' do
-      it 'responds with 403 forbidden' do
+      it 'responds with 200 ok' do
         delete "/api/v1/consents/#{consent.id}", headers: doctor_headers
-        expect(response).to have_http_status(:forbidden)
+        expect(response).to have_http_status(:ok)
       end
 
-      it 'does not destroy the Consent record' do
+      it 'destroys the Consent record' do
         expect {
           delete "/api/v1/consents/#{consent.id}", headers: doctor_headers
-        }.not_to change(Consent, :count)
+        }.to change(Consent, :count).by(-1)   # ← .to not .not_to
       end
     end
 

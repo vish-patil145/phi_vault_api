@@ -20,6 +20,6 @@ class ConsentPolicy < ApplicationPolicy
   end
 
   def destroy?
-    user.admin?
+    user.admin? || user.doctor?
   end
 end
