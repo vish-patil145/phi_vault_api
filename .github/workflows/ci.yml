@@ -1,3 +1,4 @@
+# ci.yml - GitHub Actions Workflow for CI/CD
 name: CI/CD
 
 on:
@@ -97,7 +98,7 @@ jobs:
           RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
           COVERAGE:         true
         run: |
-          bin/rails db:prepare
+          bin/rails db:create db:schema:load
           bundle exec rspec
 
       # ✅ Upload Coverage Report
