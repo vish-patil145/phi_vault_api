@@ -3,9 +3,7 @@ require "rails/all"
 
 Bundler.require(*Rails.groups)
 
-# ✅ Correct require (no Rails.root here)
 require_relative "../app/middleware/rate_limiter"
-
 module PhiVaultApi
   class Application < Rails::Application
     config.load_defaults 8.1
