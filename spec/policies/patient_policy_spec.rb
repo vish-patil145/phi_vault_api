@@ -24,6 +24,6 @@ RSpec.describe PatientPolicy, type: :policy do
   permissions :show? do
     it { is_expected.to permit(admin,  patient) }
     it { is_expected.to permit(doctor, patient) }
-    it { is_expected.not_to permit(nurse, patient) }
+    it { is_expected.to permit(nurse,  patient) }
   end
 end

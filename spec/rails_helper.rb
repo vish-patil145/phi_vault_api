@@ -6,6 +6,7 @@ require_relative '../config/environment'
 abort("The Rails environment is running in production mode!") if Rails.env.production?
 
 require 'rspec/rails'
+require 'pundit/rspec'
 
 begin
   ActiveRecord::Migration.maintain_test_schema!
@@ -17,6 +18,10 @@ end
 Rails.root.glob('spec/support/**/*.rb').sort_by(&:to_s).each { |f| require f }
 
 RSpec.configure do |config|
+  config.before(:each) do
+    ActiveJob::Base.queue_adapter = :test
+  end
+
   config.fixture_paths = [
     Rails.root.join('spec/fixtures')
   ]

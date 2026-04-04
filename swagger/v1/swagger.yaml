@@ -31,7 +31,6 @@ components:
               name:    { type: string }
               dosage:  { type: string }
         lab_results:  { type: object }
-
     PhiRecordInput:
       type: object
       properties:
@@ -41,7 +40,6 @@ components:
         data:
           "$ref": "#/components/schemas/PhiData"
       required: [patient_id, data]
-
     PhiRecord:
       type: object
       properties:
@@ -51,7 +49,6 @@ components:
         record_type: { type: string }
         request_id:  { type: string }
         created_at:  { type: string, format: datetime }
-
     Patient:
       type: object
       properties:
@@ -138,7 +135,6 @@ components:
         updated_at:
           type: string
           format: datetime
-
     ConsentInput:
       type: object
       properties:
@@ -161,7 +157,6 @@ components:
         error:
           type: string
           example: "Rate limit exceeded. Try again later."
-
 paths:
   "/api/v1/auth":
     post:

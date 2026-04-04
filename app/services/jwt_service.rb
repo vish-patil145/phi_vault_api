@@ -1,4 +1,3 @@
-# app/services/jwt_service.rb
 class JwtService
   JWT_SECRET = Rails.application.credentials.dig(:jwt, :jwt_secret)
 
@@ -8,6 +7,9 @@ class JwtService
   end
 
   def self.decode(token)
+    return nil if token.blank?
     JWT.decode(token, JWT_SECRET, true, { algorithm: "HS256" })[0]
+  rescue JWT::DecodeError
+    nil
   end
 end
