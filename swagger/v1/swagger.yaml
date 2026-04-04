@@ -64,10 +64,14 @@ components:
           - male
           - female
           - other
+        email:
+          type: string
+          format: email          
       required:
       - name
       - age
       - gender
+      - email
     PatientInput:
       type: object
       properties:
@@ -84,6 +88,10 @@ components:
           - female
           - other
           example: female
+        email:
+          type: string
+          format: email
+          example: jane.doe@example.com
       required:
       - name
       - age

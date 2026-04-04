@@ -8,4 +8,13 @@ class Patient < ApplicationRecord
   validates :name,   presence: true
   validates :age,    numericality: { only_integer: true, greater_than_or_equal_to: 0 }
   validates :gender, presence: true, inclusion: { in: GENDERS }
+  validates :email, format: { with: URI::MailTo::EMAIL_REGEXP }, allow_blank: true
+
+  after_commit :send_registration_email
+  private
+
+  def send_registration_email
+    return if email.blank?
+    PatientMailer.registration_email(self).deliver_later  # ← queues via Sidekiq
+  end
 end
