@@ -3,16 +3,15 @@ class Api::V1::ConsentsController < ApplicationController
   before_action :set_consent, only: [ :show, :update, :destroy ]
 
   def create
-    authorize Consent
-
     consent = Consent.find_or_initialize_by(
-      patient_id: params[:patient_id],
-      granted_to: params[:granted_to]
+      patient_id: consent_params[:patient_id],
+      granted_to: consent_params[:granted_to]
     )
-    consent.granted = params[:granted]
+    consent.assign_attributes(consent_params)
+    authorize consent
 
     if consent.save
-      render json: consent_response(consent), status: :created
+      render json: consent_response(consent), status: consent.previously_new_record? ? :created : :ok
     else
       render json: { errors: consent.errors.full_messages }, status: :unprocessable_entity
     end

@@ -2,7 +2,7 @@
 FactoryBot.define do
   factory :consent do
     association :patient
-    granted_to  { "nurse@hospital.com" }
+    association :granted_to, factory: :user
     granted     { true }
   end
 end

@@ -10,7 +10,9 @@ class ConsentPolicy < ApplicationPolicy
   end
 
   def show?
-    user.admin? || user.doctor?
+    return true if user.admin? || user.doctor?
+
+    user.nurse? && record.granted == true && record.granted_to == user.email
   end
 
   def update?
