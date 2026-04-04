@@ -5,9 +5,9 @@ class PatientPolicy < ApplicationPolicy
   end
 
   def create?
-    puts "===========> user role: #{user.role}"
     user.admin? || user.doctor?
   end
+
   def show?
     user.admin? || user.doctor? || user.nurse?
   end

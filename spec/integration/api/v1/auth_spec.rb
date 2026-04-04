@@ -1,4 +1,4 @@
-# spec/integration/auth_spec.rb
+# spec/integration/api/v1/auth_spec.rb
 require 'swagger_helper'
 
 RSpec.describe 'api/v1/auth', type: :request do
@@ -21,31 +21,39 @@ RSpec.describe 'api/v1/auth', type: :request do
       # ── 200 Success ────────────────────────────────────────────────────────
       response '200', 'login successful' do
         schema type: :object,
+               required: %w[token],
                properties: {
                  token: { type: :string, example: 'eyJhbGciOiJIUzI1NiJ9...' }
-               },
-               required: %w[token]
+               }
 
-        let(:credentials) do
-          user = User.create!(
-            email:    'admin@phivault.com',
-            password: 'secret123'
-          )
-          { email: user.email, password: 'secret123' }
-        end
+        let(:user)        { create(:user, password: 'secret123') }
+        let(:credentials) { { email: user.email, password: 'secret123' } }
 
         run_test!
       end
 
-      # ── 401 Invalid credentials ────────────────────────────────────────────
-      response '401', 'invalid credentials' do
+      # ── 401 Wrong password ─────────────────────────────────────────────────
+      response '401', 'invalid credentials — wrong password' do
+        schema type: :object,
+               required: %w[error],
+               properties: {
+                 error: { type: :string, example: 'Invalid' }
+               }
+
+        let(:user)        { create(:user, password: 'correct_password') }
+        let(:credentials) { { email: user.email, password: 'wrong_password' } }
+
+        run_test!
+      end
+
+      # ── 401 Non-existent user ──────────────────────────────────────────────
+      response '401', 'invalid credentials — email not found' do
         schema type: :object,
                properties: {
                  error: { type: :string, example: 'Invalid' }
-               },
-               required: %w[error]
+               }
 
-        let(:credentials) { { email: 'wrong@example.com', password: 'badpass' } }
+        let(:credentials) { { email: 'nobody@example.com', password: 'password123' } }
 
         run_test!
       end
