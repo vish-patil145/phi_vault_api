@@ -11,6 +11,7 @@ RSpec.describe Api::V1::PhiRecordsController, type: :request do
   let(:nurse_headers)   { auth_headers(nurse) }
   let(:invalid_headers) { { 'Authorization' => 'Bearer invalid_token' } }
 
+  # Shared patient used by valid_params — each example gets its own via let
   let(:patient) { create(:patient) }
 
   let(:valid_params) do
@@ -199,37 +200,42 @@ RSpec.describe Api::V1::PhiRecordsController, type: :request do
   # GET /api/v1/phi_records
   # ===========================================================================
   describe 'GET /api/v1/phi_records' do
-    before { create_list(:phi_record, 5, created_by: doctor) }
+    # ❌ Removed outer before { create_list(:phi_record, 5, created_by: doctor) }
+    # Each nested context now owns its data to prevent cross-context pollution.
 
     context 'when authenticated as doctor' do
-      it 'returns 200 ok' do
-        get '/api/v1/phi_records', headers: doctor_headers
-        expect(response).to have_http_status(:ok)
+      context 'returns all records' do
+        before { create_list(:phi_record, 5, created_by: doctor) }
+
+        it 'returns 200 ok' do
+          get '/api/v1/phi_records', headers: doctor_headers
+          expect(response).to have_http_status(:ok)
+        end
+
+        it 'returns a data array' do
+          get '/api/v1/phi_records', headers: doctor_headers
+          expect(json_body['data']).to be_an(Array)
+        end
+
+        it 'returns all records' do
+          get '/api/v1/phi_records', headers: doctor_headers
+          expect(json_body['data'].length).to eq(5)
+        end
+
+        it 'returns current_page in meta' do
+          get '/api/v1/phi_records', headers: doctor_headers
+          expect(json_body['meta']['current_page']).to eq(1)
+        end
+
+        it 'returns total_pages in meta' do
+          get '/api/v1/phi_records', headers: doctor_headers
+          expect(json_body['meta']['total_pages']).to be >= 1
+        end
       end
 
-      it 'returns a data array' do
-        get '/api/v1/phi_records', headers: doctor_headers
-        expect(json_body['data']).to be_an(Array)
-      end
-
-      it 'returns all records' do
-        get '/api/v1/phi_records', headers: doctor_headers
-        expect(json_body['data'].length).to eq(5)
-      end
-
-      it 'returns current_page in meta' do
-        get '/api/v1/phi_records', headers: doctor_headers
-        expect(json_body['meta']['current_page']).to eq(1)
-      end
-
-      it 'returns total_pages in meta' do
-        get '/api/v1/phi_records', headers: doctor_headers
-        expect(json_body['meta']['total_pages']).to be >= 1
-      end
-
-      # ── Status filter ───────────────────────────────────────────────────
-      # ⚠️  Replace :processing below with a valid status from your PhiRecord model
+      # ── Status filter ──────────────────────────────────────────────────────
       context 'with status filter' do
+        # Only creates the records this context needs — no outer 5 bleeding in
         before do
           create(:phi_record, status: 'processing', created_by: doctor)
           create(:phi_record, status: 'processing', created_by: doctor)
@@ -251,10 +257,14 @@ RSpec.describe Api::V1::PhiRecordsController, type: :request do
         end
       end
 
-      # ── Patient filter ──────────────────────────────────────────────────
+      # ── Patient filter ─────────────────────────────────────────────────────
       context 'with patient_id filter' do
         let(:other_patient) { create(:patient) }
-        before { create(:phi_record, patient: other_patient, created_by: doctor) }
+
+        before do
+          create_list(:phi_record, 3, patient: patient, created_by: doctor)
+          create(:phi_record, patient: other_patient, created_by: doctor)
+        end
 
         it 'returns only records for the given patient' do
           get '/api/v1/phi_records',
@@ -265,8 +275,11 @@ RSpec.describe Api::V1::PhiRecordsController, type: :request do
         end
       end
 
-      # ── Pagination ──────────────────────────────────────────────────────
+      # ── Pagination ─────────────────────────────────────────────────────────
       context 'with pagination' do
+        # Own isolated dataset — not relying on any outer before
+        before { create_list(:phi_record, 5, created_by: doctor) }
+
         it 'returns the correct page slice' do
           get '/api/v1/phi_records',
               params:  { page: 2, per_page: 2 },
