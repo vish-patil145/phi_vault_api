@@ -10,6 +10,7 @@ module PhiVaultApi
 
     config.api_only = true
     config.active_job.queue_adapter = :sidekiq
+    config.autoload_paths.delete("#{root}/app/middleware")
 
     config.middleware.use Middleware::RateLimiter unless Rails.env.test?
   end
