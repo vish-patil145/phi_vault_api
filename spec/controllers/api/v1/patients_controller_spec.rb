@@ -144,8 +144,6 @@ RSpec.describe Api::V1::PatientsController, type: :request do
   # ===========================================================================
   describe 'GET #index' do
     context 'when authenticated as admin' do
-      before { create_list(:patient, 5) }
-
       it 'responds with 200 ok' do
         get '/api/v1/patients', headers: admin_headers
         expect(response).to have_http_status(:ok)
@@ -156,19 +154,23 @@ RSpec.describe Api::V1::PatientsController, type: :request do
         expect(json_body['data']).to be_an(Array)
       end
 
-      it 'returns all patients' do
-        get '/api/v1/patients', headers: admin_headers
-        expect(json_body['data'].length).to eq(5)
-      end
+      context 'returns all patients' do
+        before { create_list(:patient, 5) }
 
-      it 'returns current_page in meta' do
-        get '/api/v1/patients', headers: admin_headers
-        expect(json_body['meta']['current_page']).to eq(1)
-      end
+        it 'returns exactly 5 patients' do
+          get '/api/v1/patients', headers: admin_headers
+          expect(json_body['data'].length).to eq(5)
+        end
 
-      it 'returns total_pages in meta' do
-        get '/api/v1/patients', headers: admin_headers
-        expect(json_body['meta']['total_pages']).to be >= 1
+        it 'returns current_page in meta' do
+          get '/api/v1/patients', headers: admin_headers
+          expect(json_body['meta']['current_page']).to eq(1)
+        end
+
+        it 'returns total_pages in meta' do
+          get '/api/v1/patients', headers: admin_headers
+          expect(json_body['meta']['total_pages']).to be >= 1
+        end
       end
 
       context 'with name filter' do
@@ -210,6 +212,8 @@ RSpec.describe Api::V1::PatientsController, type: :request do
       end
 
       context 'with pagination' do
+        before { create_list(:patient, 5) }
+
         it 'returns the correct page slice' do
           get '/api/v1/patients', params: { page: 2, per_page: 2 }, headers: admin_headers
           expect(json_body['data'].length).to eq(2)
