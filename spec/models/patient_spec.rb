@@ -8,6 +8,12 @@ RSpec.describe Patient, type: :model do
     it { is_expected.to validate_presence_of(:name) }
     it { is_expected.to validate_numericality_of(:age).only_integer.is_greater_than_or_equal_to(0) }
     it { is_expected.to validate_inclusion_of(:gender).in_array(%w[Male Female Other male female other]) }
+    it { is_expected.to validate_presence_of(:email) }
+    it { is_expected.to validate_uniqueness_of(:email).case_insensitive }
+    it { is_expected.to allow_value("test@example.com").for(:email) }
+    it { is_expected.not_to allow_value("invalid_email").for(:email) }
+    it { is_expected.not_to allow_value("test@").for(:email) }
+    it { is_expected.not_to allow_value("test.com").for(:email) }
   end
 
   # ── Associations ───────────────────────────────────────────────────────────

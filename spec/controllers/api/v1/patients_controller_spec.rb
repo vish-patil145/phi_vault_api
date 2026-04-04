@@ -19,7 +19,7 @@ RSpec.describe Api::V1::PatientsController, type: :request do
   # POST /api/v1/patients
   # ===========================================================================
   describe 'POST #create' do
-    let(:valid_params)      { { name: 'Jane Doe', age: 30, gender: 'female' } }
+    let(:valid_params)      { { name: 'Jane Doe', age: 30, gender: 'female', email: 'jane.doe@example.com' } }
     let(:blank_name_params) { { name: '', age: 30, gender: 'female' } }
     let(:empty_params)      { {} }
 

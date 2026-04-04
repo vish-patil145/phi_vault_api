@@ -7,6 +7,10 @@ RSpec.describe User, type: :model do
   describe 'validations' do
     it { is_expected.to validate_presence_of(:email) }
     it { is_expected.to validate_uniqueness_of(:email).case_insensitive }
+    it { is_expected.to allow_value("test@example.com").for(:email) }
+    it { is_expected.not_to allow_value("invalid_email").for(:email) }
+    it { is_expected.not_to allow_value("test@").for(:email) }
+    it { is_expected.not_to allow_value("test.com").for(:email) }
 
     it 'has valid roles' do
       expect(User.roles.keys).to match_array(%w[admin doctor nurse lab_technician])

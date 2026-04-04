@@ -6,7 +6,9 @@ class User < ApplicationRecord
 
   has_many :phi_records, foreign_key: :created_by_id, dependent: :nullify
 
-  validates :email, presence: true,
-                    uniqueness: { case_sensitive: false }
+  validates :email,
+  presence: true,
+  format: { with: URI::MailTo::EMAIL_REGEXP },
+  uniqueness: { case_sensitive: false }
   validates :role,  inclusion: { in: roles.keys }
 end

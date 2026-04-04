@@ -27,14 +27,14 @@ RSpec.describe 'api/v1/patients', type: :request do
       # ── 201 ────────────────────────────────────────────────────────────────
       response '201', 'admin creates a patient' do
         let(:Authorization) { "Bearer #{admin_token}" }
-        let(:patient) { { name: 'Jane Doe', age: 30, gender: 'female' } }
+        let(:patient) { { name: 'Jane Doe', age: 30, gender: 'female', email: 'jane.doe@example.com' } }
         schema '$ref' => '#/components/schemas/Patient'
         run_test!
       end
 
       response '201', 'doctor creates a patient' do
         let(:Authorization) { "Bearer #{doctor_token}" }
-        let(:patient) { { name: 'John Smith', age: 45, gender: 'male' } }
+        let(:patient) { { name: 'John Smith', age: 45, gender: 'male', email: 'john.smith@example.com' } }
         schema '$ref' => '#/components/schemas/Patient'
         run_test!
       end
