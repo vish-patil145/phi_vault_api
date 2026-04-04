@@ -18,8 +18,4 @@ class PhiRecordPolicy < ApplicationPolicy
       granted:    true
     )
   end
-
-  def destroy?
-    user.admin?
-  end
 end
