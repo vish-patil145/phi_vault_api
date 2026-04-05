@@ -18,6 +18,8 @@ PHI Vault provides a secure REST API for managing patient records, controlling r
 - [Background Jobs](#background-jobs)
 - [Deployment](#deployment)
 - [Security Notes](#security-notes)
+- [Postman Collection](#postman-collection)
+- [Swagger API Demo](#swagger-api-demo)
 
 ---
 
@@ -71,11 +73,11 @@ The `Middleware::RateLimiter` Rack middleware enforces rate limits via Redis. If
 |---|:---:|:---:|:---:|:---:|
 | Manage users | ✅ | ❌ | ❌ | ❌ |
 | View all patients | ✅ | ✅ | ✅ | ✅ |
-| Create / update patients | ✅ | ✅ | ✅ | ❌ |
+| Create / update patients | ✅ | ✅ | ❌ | ❌ |
 | View medical records | ✅ | ✅ | ✅ | ✅ |
-| Create medical records | ✅ | ✅ | ❌ | ✅ |
+| Create medical records | ✅ | ✅ | ❌ | ❌ |
 | Approve access requests | ✅ | ✅ | ❌ | ❌ |
-| View audit logs | ✅ | ❌ | ❌ | ❌ |
+| View audit logs | ✅ | ✅ | ❌ | ❌ |
 
 ---
 
@@ -128,7 +130,7 @@ Copy `.env.example` to `.env` and fill in the values before running locally.
 | Variable | Description | Default |
 |---|---|---|
 | `DATABASE_URL` | PostgreSQL connection string | set by Docker Compose |
-| `REDIS_URL` | Redis connection string | `redis://localhost:6379/0` |
+| `REDIS_URL` | Redis connection string | `redis://redis:6379/0` (Docker) |
 | `RAILS_MASTER_KEY` | Decrypts `config/credentials.yml.enc` | required |
 | `SECRET_KEY_BASE` | Rails session / cookie signing key | required in production |
 | `JWT_SECRET` | Signs JWT tokens | derived from credentials |
@@ -165,7 +167,7 @@ The spec is a handwritten OpenAPI 3.0 YAML file (`swagger/v1/swagger.yaml`) with
 
 ```bash
 # Run the full suite
-bundle exec rspec
+COVERAGE=true bundle exec rspec
 
 # Run a specific file
 bundle exec rspec spec/controllers/patients_controller_spec.rb
@@ -178,14 +180,14 @@ open coverage/index.html
 
 | Layer | Coverage |
 |---|---|
-| Controllers | 97.66% |
+| Controllers | 100.0% |
 | Models | 100.0% |
 | Channels | 100.0% |
 | Helpers | 100.0% |
-| Mailers | 71.43% |
-| Jobs | 38.46% |
-| Libraries | 21.62% |
-| **Overall** | **79.8%** |
+| Mailers | 100.0% |
+| Jobs | 100.0% |
+| Libraries | 100.0% |
+| **Overall** | **100.0%** |
 
 ---
 
@@ -259,12 +261,40 @@ See `.github/workflows/ci.yml` for the full pipeline.
 
 ---
 
+## Test Suite
+
+The project ships with **454 examples, 0 failures, 100% line coverage** across all layers.
+
+```bash
+COVERAGE=true bundle exec rspec
+# 454 examples, 0 failures
+# Line Coverage: 100.0% (299 / 299)
+```
+
+---
+
 ## Contributing
 
 1. Branch from `main`: `git checkout -b feature/your-feature`
 2. Write tests first — PRs without specs will not be merged
 3. Ensure `bundle exec rspec` passes with no failures
 4. Open a pull request with a clear description of the change
+
+---
+
+## Postman Collection
+
+Import the collection directly into Postman:
+
+[Open Postman Collection](https://www.postman.co/workspace/My-Workspace~5b8e950f-cab4-440c-8964-715df074bb38/collection/4087353-e1ee6d90-7b42-485c-99fc-9be47ac39418?action=share&creator=4087353)
+
+---
+
+## Swagger API Demo
+
+Watch a walkthrough of the API via Swagger UI:
+
+[View Demo on Google Drive](https://drive.google.com/file/d/1N5GlqUiq9_qCa0gWvvTxgORyjHwhwqRm/view?usp=sharing)
 
 ---
 
