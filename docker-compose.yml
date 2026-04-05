@@ -6,13 +6,15 @@ services:
       POSTGRES_PASSWORD: ${PASSWORD}
       POSTGRES_DB: ${DEV_DB_NAME}
     volumes:
-      - postgres_data:/var/lib/postgresql/data    
+      - postgres_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${USER_NAME} -d ${DEV_DB_NAME}"]
       interval: 5s
       timeout: 5s
       retries: 10
       start_period: 10s
+    networks:
+      - phi_network
 
   redis:
     image: redis:7-alpine
@@ -23,6 +25,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - phi_network
 
   web:
     build:
@@ -51,6 +55,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+    networks:
+      - phi_network
 
   sidekiq:
     build:
@@ -73,7 +79,13 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+    networks:
+      - phi_network
 
 volumes:
   postgres_data:
   bundle_cache:
+
+networks:
+  phi_network:
+    driver: bridge
